@@ -1,27 +1,45 @@
 import * as React from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const Wrapper = styled.div`
     width: 300px;
     border: 1px solid black;
     border-radius: 10px;
 `;
-export class App extends React.Component {
-    state = {
-        counter: 0
-    };
-    handleClick = () => {
-        console.log('click me');
-        this.setState({
-            counter: this.state.counter + 1
-        })
+
+interface Props {
+    data?: any[];
+}
+interface State {
+    users: any[];
+}
+
+export class App extends React.Component<Props, State> {
+    constructor(props) {
+        super(props);
+        let initialData = [];
+        if(this.props.data){
+            initialData = this.props.data;
+        } else {
+            initialData = (window as any).__initialData__;
+            delete (window as any).__initialData__;
+        }
+        this.state = { users: initialData };
+    }
+    static fetchUsers() {
+        return axios.get('http://localhost:3000/users')
+            .then((response) => response.data)
     }
     render() {
         return(
-            <Wrapper>
-                <p>{this.state.counter}</p>
-                <button onClick={this.handleClick}>click me</button>
-            </Wrapper>
+            <div>
+                <ul>
+                    {this.state.users.map((user, i) => (
+                        <li key={i}>{user.name}</li>
+                    ))}
+                </ul>
+            </div>
         )
     }
 }
